@@ -1,12 +1,11 @@
-#include <iostream>
+#include "SkipList.hpp"
 #include <string>
 #include <vector>
-using namespace std;
-#include "SkipList.hpp"
 
 template <typename T>
-void search(SkipListEl<T> *start, size_t key, vector<T> &result) {
-    SkipListEl<T> *curr = start;
+void search(const SkipListEl<T> *start, size_t key, vector<T> &result) {
+    const SkipListEl<T> *curr = start;
+
     while (curr != nullptr && curr->mNext != nullptr) {
         while (curr->mJump != nullptr && curr->mJump->mKey <= key) {
             curr = curr->mJump;
@@ -22,58 +21,67 @@ void search(SkipListEl<T> *start, size_t key, vector<T> &result) {
 }
 
 int main() {
-    SkipList<string> s;
+    SkipList<string> list;
+
+    ///////////////////////////////////////////////////////////////
     string town;
     size_t n;
 
-    cout << "Number of cities: ";
+    cout << "Number of towns through which the train passes: ";
     cin >> n;
 
-    // initialize the skip list
+    // initialize the skip list, 'i' represents the town's unique search key
+    cout << "Enter the towns: ";
     for (size_t i = 0; i < n; i++) {
         cin >> town;
-        s.pushBack(i, town);
+        list.pushBack(i, town);
     }
+    cout << '\n';
+    ///////////////////////////////////////////////////////////////
 
     pair<string, string> directLanes;
-    cout << "Number of direct lanes: ";
+    cout << "Number of direct lanes between two towns: ";
     cin >> n;
 
+    // initialize the direct lanes between two towns
+    cout << "Enter the direct lanes:\n";
     for (size_t i = 0; i < n; i++) {
         cout << "From: ";
         cin >> directLanes.first;
-        cout << '\n'
-             << "To: ";
+        cout << "To: ";
         cin >> directLanes.second;
-        s.linkTowns(directLanes.first, directLanes.second);
+        list.linkTowns(directLanes.first, directLanes.second);
     }
-    cout << endl;
+    cout << '\n';
+    ///////////////////////////////////////////////////////////////
 
     vector<string> townsToVisit;
     string toVisit;
-    cout << "Start gara:";
-    cin >> toVisit;
-    townsToVisit.push_back(toVisit);
+
+    townsToVisit.push_back(list.front());
 
     cout << "Number of towns to visit: ";
     cin >> n;
 
+    // initialize the desired towns to visit
+    cout << "Desired towns to visit: ";
     for (size_t i = 0; i < n; i++) {
         cin >> toVisit;
         townsToVisit.push_back(toVisit);
     }
 
-    cout << "End gara: ";
-    cin >> toVisit;
-    townsToVisit.push_back(toVisit);
+    townsToVisit.push_back(list.back());
+    ///////////////////////////////////////////////////////////////
 
     vector<string> result;
     result.push_back(townsToVisit.front());
 
+    // find the most optimal way between two given towns by performing a search of the unique key of the given town
     for (size_t i = 0; i < townsToVisit.size() - 1; i++) {
-        search(s.getElem(townsToVisit[i]), s.getKey(townsToVisit[i + 1]), result);
+        search(list.getElem(townsToVisit[i]), list.getKey(townsToVisit[i + 1]), result);
     }
 
+    cout << "Result: ";
     for (size_t i = 0; i < result.size(); i++) {
         cout << result[i] << ' ';
     }
