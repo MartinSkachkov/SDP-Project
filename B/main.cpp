@@ -1,9 +1,10 @@
 #include "Graph.hpp"
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <queue>
 #include <set>
-#include <unordered_set>
 using namespace std;
 
 struct Path {
@@ -39,46 +40,92 @@ void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
     }
 }
 
-int main() {
-    /* ifstream file("map.txt");
+Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
+    size_t v, e;
 
-     if (!file.is_open()) {
-         cout << "Error!" << endl;
-         return -1;
-     }*/
+    file >> v >> e;
+    cout << "Graph will have " << v << " vertices and " << e << " edges.\n";
+    Graph g(v);
+    cout << '\n';
 
-    Graph g(6);
-    g.addEdge(0, 1, 26);
-    g.addEdge(1, 2, 7);
-    g.addEdge(2, 3, 12);
-    g.addEdge(1, 3, 14);
-    g.addEdge(3, 4, 18);
-    g.addEdge(1, 4, 5);
-    g.addEdge(5, 4, 2);
-    g.addEdge(5, 0, 20);
+    map<string, size_t> landmarkToNum;
+    vector<string> landmarks;
+    string from, to;
+    size_t weight;
 
-    // print vertices and it's adjacent
+    for (size_t i = 0; i < e; i++) {
+        file >> from >> to >> weight;
+        landmarks.push_back(from);
+        landmarks.push_back(to);
+    }
+
+    // removing duplicating strings
+    // https://www.techiedelight.com/remove-duplicates-vector-cpp/
+    auto end = landmarks.end();
+    auto begin = landmarks.begin();
+    for (auto it = begin; it != end; ++it) {
+        end = remove(it + 1, end, *it);
+    }
+    landmarks.erase(end, landmarks.end());
+
+    size_t counter = 0;
+    cout << "Landmarks that can be visited in this town:\n";
+    for (const auto &landmark : landmarks) {
+        cout << landmark << "\n";
+        landmarkToNum[landmark] = counter;
+        numToLandmark[counter] = landmark;
+        counter++;
+    }
+    cout << "\n";
+
+    cout << "Number representation -> Landmark:\n";
+    for (const auto &elem : numToLandmark) {
+        cout << elem.first << " -> " << elem.second << "\n";
+    }
+    cout << '\n';
+
+    size_t timeLimit;
+    file >> timeLimit;
+    file.seekg(3); // set the pointer in the file to point to the strings (a.k.a skip r & k)
+
+    for (size_t i = 0; i < e; i++) {
+        file >> from >> to >> weight;
+        g.addEdge(landmarkToNum[from], landmarkToNum[to], weight);
+    }
+
+    cout << "Adjacency list for each vertex:\n";
     for (size_t i = 0; i < 6; i++) {
         vector<vertex_t> successors = g.getSuccessors(i);
-        cout << "vertex: " << i << endl;
+        cout << "vertex: " << i << '\n';
         for (size_t i = 0; i < successors.size(); i++) {
             cout << successors[i] << ' ';
         }
-        cout << endl;
+        cout << '\n';
     }
+    cout << '\n';
 
     Path best_path;
-    BFS(g, 0, 68, best_path);
+    BFS(g, 0, timeLimit, best_path);
 
-    cout << "In " << best_path.length << " minutes visited " << best_path.visited.size() << " places:\n";
-    for (auto &v : best_path.visited) {
-        cout << v << "\n";
+    return best_path;
+}
+
+int main() {
+    ifstream file("map.txt");
+
+    if (!file.is_open()) {
+        cout << "Couldn't open the file!" << '\n';
+        return -1;
     }
-    cout << '0';
-    // for (size_t i = 0; i < v.size(); i++)
-    //{
-    //	cout << v[i];
-    // }
-    //  file.close();
+
+    map<size_t, string> numToLandmark;
+    Path best_path = findOptimalWay(file, numToLandmark);
+    cout << "In " << best_path.length << " minutes visited " << best_path.visited.size() << " places:\n";
+    for (const auto &v : best_path.visited) {
+        cout << numToLandmark[v] << "\n";
+    }
+    cout << numToLandmark[0] << '\n';
+
+    file.close();
     return 0;
 }
