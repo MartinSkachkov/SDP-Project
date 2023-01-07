@@ -8,6 +8,8 @@ using namespace std;
 using vertex_t = size_t;
 using weight_t = size_t;
 
+/// @brief Matrix Representation of a graph
+/// за помощ с реализацията съм си служил с - https://github.com/stoychoX/Data-structures-and-algorithms/tree/main/Seminar11/Graph-Impl
 class Graph {
 private:
     vector<vector<weight_t>> data;

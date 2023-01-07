@@ -7,12 +7,27 @@
 #include <set>
 using namespace std;
 
+/// Задачата не работи изцяло коректно. Намира правилното време, за което да се направи разходката в графа, но понеже използвам set за пазенето на посетените
+/// върхове, то не изрежда последователността и бройката коректно на края.
+/// Ресурси, които съм чел и използвал за помагането на решаването на задачата:
+/// идеята за обхождане на граф в който може да повтаряме върхове - https://www.techiedelight.com/least-cost-path-digraph-source-destination-m-edges/
+/// идеята за обхождане на граф в който може да повтаряме върхове - https://www.techiedelight.com/maximum-cost-path-graph-source-destination/
+/// идеята за обхождане на граф в който може да повтаряме върхове - https://stackoverflow.com/questions/13718869/traverse-a-graph-from-a-starting-point-and-ending-at-the-starting-point-c
+/// map & set - https://github.com/stoychoX/Data-structures-and-algorithms/tree/main/Seminar10
+
+/// @brief Path struct keeps track of the visited vertices while we are traversing the graph to find the most optimal way
 struct Path {
     vertex_t v;
     weight_t length;
     set<vertex_t> visited;
 };
 
+/// @brief this function is a modified version of BFS where we allow traversing a given vertex several times
+/// @param g the graph we are traversing
+/// @param start 0 -> Railway station
+/// @param threshold this is the time limit taken from the file (in our exemple - 68)
+/// @param best_path helps me to store the the most optimal way (more precisely we store it in the set<vertex_t> visited)
+/// Причината, заради която пазя посетените върхове в set, е че по този начин не зацикля BFS-a. Пробвах с вектор, но зацикляше.
 void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
     queue<Path> q;
     q.push({start, 0, {}});
@@ -40,6 +55,11 @@ void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
     }
 }
 
+/// @brief
+/// @param file file we are reading from
+/// @param numToLandmark на всяко число съпоставям съответната забележителност. Това го правя защото в по-късен етап като трябва да взимам наследниците на даден връх
+/// getSuccessors(v) ще бъде много по-лесно чрез int-ове да проверявам дали има ребро между два върха в матрицата.
+/// @return не изкрава правилно пътя, но правилно калкулира времето за което се взема пътят.
 Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     size_t v, e;
 
@@ -53,13 +73,15 @@ Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     string from, to;
     size_t weight;
 
+    /// @brief запазваме във вектор всички забележителности но с повторение
     for (size_t i = 0; i < e; i++) {
         file >> from >> to >> weight;
         landmarks.push_back(from);
         landmarks.push_back(to);
     }
 
-    // removing duplicating strings
+    /// @brief премахваме повторенията
+    /// @return landmarks = Railstation ArtGallery RomanStadium DzhumayaSquare HistoricalMuseum AntiqueTheatre
     // https://www.techiedelight.com/remove-duplicates-vector-cpp/
     auto end = landmarks.end();
     auto begin = landmarks.begin();
@@ -86,7 +108,7 @@ Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
 
     size_t timeLimit;
     file >> timeLimit;
-    file.seekg(3); // set the pointer in the file to point to the strings (a.k.a skip r & k)
+    file.seekg(3); // set the pointer in the file to point to the strings (a.k.a skip r & k part in the file)
 
     for (size_t i = 0; i < e; i++) {
         file >> from >> to >> weight;

@@ -1,5 +1,5 @@
-#ifndef _SKIP_LIST_
-#define _SKIP_LIST_
+#ifndef _SKIP_LIST_HPP_
+#define _SKIP_LIST_HPP_
 #include <cstdlib>
 #include <iostream>
 using namespace std;
