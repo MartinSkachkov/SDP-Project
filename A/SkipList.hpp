@@ -58,7 +58,7 @@ template <typename T>
 SkipList<T>::SkipList() : mHead(nullptr), mTail(nullptr), mSize(0) {}
 
 template <typename T>
-SkipList<T>::SkipList(const SkipList<T> &other) {
+SkipList<T>::SkipList(const SkipList<T> &other) : mHead(nullptr), mTail(nullptr) {
     copy(other);
 }
 
