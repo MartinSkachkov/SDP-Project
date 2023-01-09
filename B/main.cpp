@@ -8,8 +8,8 @@
 using namespace std;
 
 /// Задачата не работи изцяло коректно. Намира правилното време, за което да се направи разходката в графа, но понеже използвам set за пазенето на посетените
-/// върхове, то не изрежда последователността и бройката коректно на края.
-/// Ресурси, които съм чел и използвал за помагането на решаването на задачата:
+/// върхове, то не изрежда последователността и бройката коректно накрая.
+/// Ресурси, които съм чел и използвал за решаването на задачата:
 /// идеята за обхождане на граф в който може да повтаряме върхове - https://www.techiedelight.com/least-cost-path-digraph-source-destination-m-edges/
 /// идеята за обхождане на граф в който може да повтаряме върхове - https://www.techiedelight.com/maximum-cost-path-graph-source-destination/
 /// идеята за обхождане на граф в който може да повтаряме върхове - https://stackoverflow.com/questions/13718869/traverse-a-graph-from-a-starting-point-and-ending-at-the-starting-point-c
@@ -22,7 +22,7 @@ struct Path {
     set<vertex_t> visited;
 };
 
-/// @brief this function is a modified version of BFS where we allow traversing a given vertex several times
+/// @brief this function is a modified version of BFS where we allow traversing a given vertex several times (the idea is taken from the above sources)
 /// @param g the graph we are traversing
 /// @param start 0 -> Railway station
 /// @param threshold this is the time limit taken from the file (in our exemple - 68)
@@ -30,6 +30,7 @@ struct Path {
 /// Причината, заради която пазя посетените върхове в set, е че по този начин не зацикля BFS-a. Пробвах с вектор, но зацикляше.
 void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
     queue<Path> q;
+    // започваме от start, пътя все ище ни е 0, и не сме посетили нито един връх
     q.push({start, 0, {}});
 
     while (!q.empty()) {
@@ -39,13 +40,19 @@ void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
         for (auto &succ : g.getSuccessors(cur.v)) // vector<vertex_t> {1,5}
         {
             Path new_path = cur;
+            // тъй като пътя само нараства, това гарантира, че ще имаме невалидни обхождания
             new_path.length += g.getWeight(cur.v, succ);
+            // затова ако е невалиден пътя то:
             if (new_path.length > threshold) {
+                // премахваме го като опция
                 continue;
             }
 
+            // ако обаче все още е валиден път, то се придвижваме с един връх напред
             new_path.v = succ;
+            // маркираме го като обходен
             new_path.visited.insert(succ);
+            // по-късно в итерацията ще гледаме дали от него -> нататък ще има валиден път
             q.push(new_path);
 
             if (new_path.v == start && new_path.visited.size() > best_path.visited.size()) {
@@ -55,11 +62,11 @@ void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
     }
 }
 
-/// @brief
+/// @brief function which reads the data from the file
 /// @param file file we are reading from
-/// @param numToLandmark на всяко число съпоставям съответната забележителност. Това го правя защото в по-късен етап като трябва да взимам наследниците на даден връх
+/// @param numToLandmark на всяко число съпоставям съответната забележителност. Това го правя, защото в по-късен етап, като трябва да взимам наследниците на даден връх
 /// getSuccessors(v) ще бъде много по-лесно чрез int-ове да проверявам дали има ребро между два върха в матрицата.
-/// @return не изкрава правилно пътя, но правилно калкулира времето за което се взема пътят.
+/// @return не изкрава правилно пътя, но правилно калкулира времето за което се "извървява" този път.
 Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     size_t v, e;
 
@@ -73,7 +80,7 @@ Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     string from, to;
     size_t weight;
 
-    /// @brief запазваме във вектор всички забележителности но с повторение
+    /// @brief запазваме във вектор всички забележителности, но с повторение
     for (size_t i = 0; i < e; i++) {
         file >> from >> to >> weight;
         landmarks.push_back(from);
@@ -143,10 +150,12 @@ int main() {
     map<size_t, string> numToLandmark;
     Path best_path = findOptimalWay(file, numToLandmark);
     cout << "In " << best_path.length << " minutes visited " << best_path.visited.size() << " places:\n";
+    /// @brief we map back from vetex indexes (0, 1 ...) -> names (strings)
+    /// @return Railstation, ArtGallery, RomanStadium, DzhumayaSquare, AntiqueTheatre
     for (const auto &v : best_path.visited) {
         cout << numToLandmark[v] << "\n";
     }
-    cout << numToLandmark[0] << '\n';
+    cout << numToLandmark[0] << '\n'; // since we need to go back to where we started, just print the finish point
 
     file.close();
     return 0;
