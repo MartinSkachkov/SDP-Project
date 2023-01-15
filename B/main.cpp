@@ -37,14 +37,14 @@ void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
         Path cur = q.front();
         q.pop();
 
-        for (auto &succ : g.getSuccessors(cur.v)) // vector<vertex_t> {1,5}
+        for (auto &succ : g.getSuccessors(cur.v)) // g.getSucc(curr.v) = vector<vertex_t> {1,2}
         {
             Path new_path = cur;
             // тъй като пътя само нараства, това гарантира, че ще имаме невалидни обхождания
             new_path.length += g.getWeight(cur.v, succ);
             // затова ако е невалиден пътя то:
             if (new_path.length > threshold) {
-                // премахваме го като опция
+                // премахваме го като опция, (изключваме го да бъде добавен в опашката)
                 continue;
             }
 
@@ -55,8 +55,9 @@ void BFS(const Graph &g, vertex_t start, weight_t threshold, Path &best_path) {
             // по-късно в итерацията ще гледаме дали от него -> нататък ще има валиден път
             q.push(new_path);
 
-            if (new_path.v == start && new_path.visited.size() > best_path.visited.size()) {
-                best_path = new_path;
+            // искаме да почваме от началото и да се връщаме в него и да обходим максимално много върхове
+            if (new_path.v == start && new_path.visited.size() > best_path.visited.size()) { // default set::size() = 0
+                best_path = new_path;                                                        // тук ще запазим финалния резултат
             }
         }
     }
@@ -81,6 +82,7 @@ Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     size_t weight;
 
     /// @brief запазваме във вектор всички забележителности, но с повторение
+    /// можеше и set, но тогава запазваше дестинациите в азбучен ред
     for (size_t i = 0; i < e; i++) {
         file >> from >> to >> weight;
         landmarks.push_back(from);
@@ -101,6 +103,7 @@ Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     cout << "Landmarks that can be visited in this town:\n";
     for (const auto &landmark : landmarks) {
         cout << landmark << "\n";
+        /// инициализираме map-овете
         landmarkToNum[landmark] = counter;
         numToLandmark[counter] = landmark;
         counter++;
@@ -117,6 +120,7 @@ Path findOptimalWay(ifstream &file, map<size_t, string> &numToLandmark) {
     file >> timeLimit;
     file.seekg(3); // set the pointer in the file to point to the strings (a.k.a skip r & k part in the file)
 
+    /// @brief след като вече сме означили върховете с цифри, то инициализираме графа
     for (size_t i = 0; i < e; i++) {
         file >> from >> to >> weight;
         g.addEdge(landmarkToNum[from], landmarkToNum[to], weight);

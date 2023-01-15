@@ -37,7 +37,7 @@ void initializeBoxList(ifstream &file) {
         }
 
         // тук става "навързването"
-        file >> boxCount;
+        file >> boxCount; // брой подкутии
         for (size_t i = 0; i < boxCount; i++) {
             file >> boxLabel;
             boxList.addInnerBox(boxLabel, parentBox);

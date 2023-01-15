@@ -6,7 +6,7 @@
 /// first iteration will look like this (we start from Sofia and want to go to Plovdiv):
 /// @param start Sofia
 /// @param key 2 (which is the key of Plovdiv)
-/// @param result Sofia Pazardzhik Plovdiv is the most efficient path in this example so we save it to the result. In the next iteration we will go from Plovdiv to 4 (StaraZagora)
+/// @param result Sofia Plovdiv is the most efficient path in this example so we save it to the result. In the next iteration we will go from Plovdiv to 4 (StaraZagora)
 template <typename T>
 void search(const SkipListEl<T> *start, size_t key, vector<T> &result) {
     const SkipListEl<T> *curr = start;
@@ -33,7 +33,7 @@ int main() {
     cout << "Number of towns through which the train passes: ";
     cin >> n;
 
-    /// @brief first we initialize the skip list, 'i' represents the town's uniqie key
+    /// @brief first we initialize the skip list, 'i' represents the town's unique key
     /// @return |0|Sofia|NIL| -> |1|Pazardzhik|NIL| -> |2|Plovdiv|NIL| -> |3|Dimitrovgrad|NIL| -> |4|StaraZagora|NIL| -> |5|NovaZagora|NIL| -> |6|Yambol|NIL| -> |7|Karnobat|NIL| -> |8|Burgas|NIL| -> NIL
     cout << "Enter the towns: ";
     for (size_t i = 0; i < n; i++) {

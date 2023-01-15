@@ -10,7 +10,7 @@ class Box {
 private:
     string label;
     vector<string> souvenirs;
-    vector<Box *> boxes;
+    vector<Box *> boxes; // subboxes
 
     void free();
     void copy(const Box &other);
